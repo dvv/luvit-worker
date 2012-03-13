@@ -42,6 +42,7 @@ typedef struct {
  * Just runs a C function inside a separate state
  */
 static void worker(uv_work_t* req) {
+  /*luv_work_t* ref = container_of(req, luv_work_t, data);*/
   luv_work_t* ref = req->data;
   ref->fn(ref->X);
 }
@@ -53,6 +54,7 @@ static void worker(uv_work_t* req) {
  *   to luv_queue_work (effectively returning results of run worker)
  */
 static void after_work(uv_work_t* req) {
+  /*luv_work_t* ref = container_of(req, luv_work_t, data);*/
   luv_work_t* ref = req->data;
   lua_State *L = ref->L;
 
