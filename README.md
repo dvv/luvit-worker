@@ -1,8 +1,6 @@
 Worker API for Luvit
 =====
 
-[![Build Status](https://secure.travis-ci.org/dvv/luvit-worker.png)](http://travis-ci.org/dvv/luvit-worker)
-
 "Unblock" blocking API.
 
 Usage

@@ -1,3 +1,5 @@
+PATH := .:$(PATH)
+
 LUADIR := ../luvit/deps/luajit/src
 UVDIR  := ../luvit/deps/uv
 
@@ -10,9 +12,6 @@ build/%.luvit: src/%.c
 
 clean:
 	rm -fr build
-
-test: all
-	#luvit -i test/smoke.lua
 
 .PHONY: all test clean
 .SILENT:
