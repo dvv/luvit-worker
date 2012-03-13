@@ -9,11 +9,24 @@ Usage
 ```lua
 local Worker = require('worker').Worker
 
-local blocking_fn = some-blocking-C-function-say-sleep
+--
+-- call blocking function in separate state
+--
 
-Worker:new(blocking_fn, 10)
-  :on('end', p)
-  :on('error', p)
+Worker:new(a_blocking_C_fn, ... --[[ optional args to the function]]-)
+  :on('end', function (...)
+    -- function returned
+    p('RESULTS', ...)
+  end)
+  :on('error', function (err)
+    p('ERROR', err)
+  end)
+
+--
+-- execution continues as if function were non-blocking
+--
+
+print('This is printed before RESULTS or ERROR')
 ```
 
 License
