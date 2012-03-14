@@ -15,11 +15,15 @@
  *
  */
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
 #include "uv.h"
+
+#define container_of(ptr, type, member) \
+  ((type *) ((char *) (ptr) - offsetof(type, member)))
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -41,8 +45,7 @@ typedef struct {
  * Just runs a function inside a separate state
  */
 static void worker(uv_work_t* req) {
-  /*luv_work_t* ref = container_of(req, luv_work_t, data);*/
-  luv_work_t* ref = req->data;
+  luv_work_t* ref = container_of(req, luv_work_t, work_req);
   if (lua_isfunction(ref->X, 1)) {
     lua_call(ref->X, lua_gettop(ref->X) - 1, LUA_MULTRET);
   } /*else {
@@ -58,8 +61,7 @@ static void worker(uv_work_t* req) {
  *   to luv_queue_work (effectively returning results of run worker)
  */
 static void after_work(uv_work_t* req) {
-  /*luv_work_t* ref = container_of(req, luv_work_t, data);*/
-  luv_work_t* ref = req->data;
+  luv_work_t* ref = container_of(req, luv_work_t, work_req);
   lua_State *L = ref->L;
 
   int before = lua_gettop(L);
@@ -103,7 +105,7 @@ int luv_queue_work(lua_State* L) {
   luaL_checktype(L, argc, LUA_TFUNCTION);
 
   /* allocate worker object */
-  luv_work_t* ref = malloc(sizeof(luv_work_t));
+  luv_work_t* ref = malloc(sizeof(*ref));
   ref->work_req.data = ref;
   ref->L = L;
 
