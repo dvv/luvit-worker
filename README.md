@@ -9,21 +9,20 @@ Usage
 -----
 
 ```lua
-local Worker = require('worker').Worker
+local Worker = require('worker')
 
 --
 -- call [lua_CFunction](http://pgl.yoyo.org/luai/i/lua_CFunction) in separate state
 --
 
-Worker:new()
-  :on('end', function (...)
-    -- function returned
-    p('RESULTS', ...)
-  end)
-  :on('error', function (err)
+Worker.run(func, ... --[[ optional args to the function]]-- , function (err, ...)
+  -- function returned
+  if err then
     p('ERROR', err)
-  end)
-  :run(func, ... --[[ optional args to the function]]-)
+  else
+    p('RESULTS', ...)
+  end
+end)
 
 --
 -- execution continues nomatter whether function were blocking or not

@@ -64,16 +64,22 @@ static void after_work(uv_work_t* req) {
 
   int before = lua_gettop(L);
 
-  /* load the callback and arguments */
+  /* load the callback */
   int argc = lua_gettop(ref->X);
   lua_rawgeti(L, LUA_REGISTRYINDEX, ref->cb);
   luaL_unref(L, LUA_REGISTRYINDEX, ref->cb);
+
+  /* load error. N.B. trivially nil so far */
+  lua_pushnil(L);
+
+  /* move results */
   lua_xmove(ref->X, L, argc);
+
   /* ensure separate state is cleared */
   assert(lua_gettop(ref->X) == 0);
 
   /* call back */
-  luv_acall(L, argc, 0, "after_work");
+  luv_acall(L, argc + 1, 0, "after_work");
 
   assert(lua_gettop(L) == before);
 

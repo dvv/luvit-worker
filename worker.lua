@@ -18,37 +18,31 @@ limitations under the License.
 
 local queue = require('./build/worker').queue
 
-local Worker = require('core').Emitter:extend()
-
 --[[
 Runs a C function in separate state.
 
 ```lua
-Worker:new()
-  :on('end', p)
-  :on('error', p)
-  :run(a_blocking_C_fn, 10)
+require('worker').run(cfunc, ..., callback)
 ```
 ]]
-function Worker:run(cfunc, ...)
+local function run(cfunc, ...)
 
   -- enqueue execution of cfunc
   local status, err = pcall(
       queue,
       cfunc,
-      ...,
-      -- emit 'end' on completion
-      function (...) self:emit('end', ...) end
+      ...
     )
 
-  -- emit 'error' on error
+  -- should error occur, treat the last arg as callback
   if not status then
-    self:emit('error', err)
+    local args = {...}
+    args[#args](err)
   end
 
 end
 
 -- module
 return {
-  Worker = Worker,
+  run = run,
 }
