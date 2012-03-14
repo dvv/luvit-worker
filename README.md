@@ -12,7 +12,7 @@ Usage
 local Worker = require('worker').Worker
 
 --
--- call blocking function in separate state
+-- call [lua_CFunction](http://pgl.yoyo.org/luai/i/lua_CFunction) in separate state
 --
 
 Worker:new()
@@ -23,10 +23,10 @@ Worker:new()
   :on('error', function (err)
     p('ERROR', err)
   end)
-  :run(a_blocking_C_fn, ... --[[ optional args to the function]]-)
+  :run(func, ... --[[ optional args to the function]]-)
 
 --
--- execution continues as if function were non-blocking
+-- execution continues nomatter whether function were blocking or not
 --
 
 print('This is printed before RESULTS or ERROR')

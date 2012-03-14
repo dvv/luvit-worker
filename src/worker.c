@@ -101,7 +101,7 @@ int luv_queue_work(lua_State* L) {
   /* FIXME: allow cdata, mind FFI.C functions, e.g. */
   ref->fn = lua_tocfunction(L, 1);
   if (ref->fn == NULL) {
-    return luaL_error(L, "queue: can not find worker function");
+    return luaL_error(L, "queue: can not cast worker to C function");
   }
 
   /* allocate new state */
