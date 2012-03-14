@@ -15,7 +15,7 @@ local Worker = require('worker').Worker
 -- call blocking function in separate state
 --
 
-Worker:new(a_blocking_C_fn, ... --[[ optional args to the function]]-)
+Worker:new()
   :on('end', function (...)
     -- function returned
     p('RESULTS', ...)
@@ -23,6 +23,7 @@ Worker:new(a_blocking_C_fn, ... --[[ optional args to the function]]-)
   :on('error', function (err)
     p('ERROR', err)
   end)
+  :run(a_blocking_C_fn, ... --[[ optional args to the function]]-)
 
 --
 -- execution continues as if function were non-blocking

@@ -21,15 +21,16 @@ local queue = require('./build/worker').queue
 local Worker = require('core').Emitter:extend()
 
 --[[
-Creates a new instanse of a worker.
+Runs a C function in separate state.
 
 ```lua
-Worker:new(a_blocking_C_fn, 10)
+Worker:new()
   :on('end', p)
   :on('error', p)
+  :run(a_blocking_C_fn, 10)
 ```
 ]]
-function Worker:initialize(cfunc, ...)
+function Worker:run(cfunc, ...)
 
   -- enqueue execution of cfunc
   local status, err = pcall(
