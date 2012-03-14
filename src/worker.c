@@ -102,6 +102,10 @@ int luv_queue_work(lua_State* L) {
   ref->L = L;
 
   /* allocate new state */
+  /* N.B. http://pgl.yoyo.org/luai/i/lua_State
+   * The Lua library is fully reentrant: it has no global variables.
+   * All information about a state is kept in this structure.
+   */
   ref->X = luaL_newstate();
   if (ref->X == NULL) {
     return luaL_error(L, "queue: can not allocate new state");
