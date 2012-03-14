@@ -36,9 +36,9 @@ function Worker:run(cfunc, ...)
   local status, err = pcall(
       queue,
       cfunc,
+      ...,
       -- emit 'end' on completion
-      function (...) self:emit('end', ...) end,
-      ...
+      function (...) self:emit('end', ...) end
     )
 
   -- emit 'error' on error

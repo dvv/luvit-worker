@@ -33,18 +33,22 @@ typedef struct {
   lua_State* L;
   lua_State* X;
   uv_work_t work_req;
-  lua_CFunction fn;
   int cb;
 } luv_work_t;
 
 /*
  * Generic worker function.
- * Just runs a C function inside a separate state
+ * Just runs a function inside a separate state
  */
 static void worker(uv_work_t* req) {
   /*luv_work_t* ref = container_of(req, luv_work_t, data);*/
   luv_work_t* ref = req->data;
-  ref->fn(ref->X);
+  if (lua_isfunction(ref->X, 1)) {
+    lua_call(ref->X, lua_gettop(ref->X) - 1, LUA_MULTRET);
+  } /*else {
+    ref->fn = luaL_checkint(ref->X, 1);
+    int rc = ref->fn(luaL_checkint(ref->X, 2));
+  }*/
 }
 
 /*
@@ -85,24 +89,17 @@ static void after_work(uv_work_t* req) {
  */
 int luv_queue_work(lua_State* L) {
 
-  int nargs = lua_gettop(L);
+  int argc = lua_gettop(L);
 
   /* check arguments */
   /* FIXME: allow cdata, mind FFI.C functions, e.g. */
   luaL_checktype(L, 1, LUA_TFUNCTION);
-  luaL_checktype(L, 2, LUA_TFUNCTION);
+  luaL_checktype(L, argc, LUA_TFUNCTION);
 
   /* allocate worker object */
   luv_work_t* ref = malloc(sizeof(luv_work_t));
   ref->work_req.data = ref;
   ref->L = L;
-
-  /* store worker function */
-  /* FIXME: allow cdata, mind FFI.C functions, e.g. */
-  ref->fn = lua_tocfunction(L, 1);
-  if (ref->fn == NULL) {
-    return luaL_error(L, "queue: can not cast worker to C function");
-  }
 
   /* allocate new state */
   ref->X = luaL_newstate();
@@ -110,12 +107,19 @@ int luv_queue_work(lua_State* L) {
     return luaL_error(L, "queue: can not allocate new state");
   }
 
-  /* store callback */
-  lua_pushvalue(L, 2);
+  /* clone environment */
+  /* FIXME: doesn't seem to improve :( */
+  /*
+  lua_getfenv(L, argc);
+  lua_setfenv(L, 1);
+  */
+
+  /* pop and store callback */
   ref->cb = luaL_ref(L, LUA_REGISTRYINDEX);
 
-  /* transfer initial arguments */
-  lua_xmove(L, ref->X, nargs - 2);
+  /* move arguments */
+  //printf("STACK0 L=%d, X=%d\n", lua_gettop(L), lua_gettop(ref->X));
+  lua_xmove(L, ref->X, argc - 1);
 
   /* shedule the worker */
   if (uv_queue_work(luv_get_loop(L), &ref->work_req, worker, after_work)) {
@@ -126,7 +130,6 @@ int luv_queue_work(lua_State* L) {
   }
 
   /* cleanup */
-  lua_pop(L, 2);
   assert(lua_gettop(L) == 0);
 
   return 0;

@@ -41,12 +41,13 @@ FFI.cdef[[
 int sleep(uint32_t sec);
 ]]
 
---[[
-p(type(FFI.C.sleep))
-
-local function sleep(...) return FFI.C.sleep(...) end
-
 -- TODO: fixup
+
+local function sleep0(...) print('CALLED!', ...) end
+local function sleep4() return FFI.C.sleep(4) end
+local sleep_p = tonumber(tostring(FFI.C.sleep):gsub('^.*: ', ''), 16)
+--p(FFI.C.sleep, sleep_p)
+
 local f1 = Worker:new()
   f1:on('end', function (...)
     p('FFI: SLEPT 4 sec', ...)
@@ -54,5 +55,5 @@ local f1 = Worker:new()
   f1:on('error', function (err)
     p('FFI: ERROR SLEEPING 4 sec', err)
   end)
-  f1:run(sleep, 4)
-]]--
+  --f1:run(sleep0)
+  --f1:run(sleep_p, 4)
