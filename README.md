@@ -9,13 +9,13 @@ Usage
 -----
 
 ```lua
-local Worker = require('worker')
+local run = require('worker').run
 
 --
 -- call [lua_CFunction](http://pgl.yoyo.org/luai/i/lua_CFunction) in separate state
 --
 
-Worker.run(func, ... --[[ optional args to the function]]-- , function (err, ...)
+run(func, arg..., function (err, ...)
   -- function returned
   if err then
     p('ERROR', err)
