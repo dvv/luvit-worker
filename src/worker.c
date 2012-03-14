@@ -46,12 +46,7 @@ typedef struct {
  */
 static void worker(uv_work_t* req) {
   luv_work_t* ref = container_of(req, luv_work_t, work_req);
-  if (lua_isfunction(ref->X, 1)) {
-    lua_call(ref->X, lua_gettop(ref->X) - 1, LUA_MULTRET);
-  } /*else {
-    ref->fn = luaL_checkint(ref->X, 1);
-    int rc = ref->fn(luaL_checkint(ref->X, 2));
-  }*/
+  lua_call(ref->X, lua_gettop(ref->X) - 1, LUA_MULTRET);
 }
 
 /*
