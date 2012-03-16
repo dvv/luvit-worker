@@ -32,3 +32,13 @@ Worker.run(Sleep.sleep, 2, function (err, ...)
     p('SLEPT 2 sec', ...)
   end
 end)
+
+--[[
+Worker.run(require, 'fs', function (err, ...)
+  if err then
+    p('ERROR REQUIRING fs', err)
+  else
+    p('FS required', ...)
+  end
+end)
+]]--
